@@ -50,4 +50,10 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\DemoRequest.txt" />
+    <Text Include="..\DemoRequestExtended.txt" />
+    <Text Include="..\DemoResponse.txt" />
+    <Text Include="..\README.txt" />
+  </ItemGroup>
 </Project>

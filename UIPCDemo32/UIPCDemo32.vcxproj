@@ -138,6 +138,12 @@
   <ItemGroup>
     <ResourceCompile Include="UIPCDemo32.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\DemoRequest.txt" />
+    <Text Include="..\DemoRequestExtended.txt" />
+    <Text Include="..\DemoResponse.txt" />
+    <Text Include="..\README.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

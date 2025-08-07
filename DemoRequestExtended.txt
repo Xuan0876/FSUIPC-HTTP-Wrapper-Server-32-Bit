@@ -1,0 +1,141 @@
+Currently Working Demo Request (Extended)
+
+POST URL: http://0.0.0.0:8000/api/uipc
+{
+    "requestId": "req-10019238",
+    "apiVersion": "1.0",
+    "dataQueries": [
+        {
+            "name": "CON ACTIVE FREQUENCY: 1",
+            "offset": "0x05C4",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "AIRSPEED MACH",
+            "offset": "  0x35A0",
+            "size": 8,
+            "targetType": "float64"
+        },
+        {
+            "name": "AIRSPEED TRUE (knots mult.ed by. 128)",
+            "offset": "  0x02B8",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "AIRSPEED INDICATED (knots mult.ed by. 128)",
+            "offset": "  0x02BC",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "GPS GROUND SPEED (m per s)",
+            "offset": "0x6030",
+            "size": 8,
+            "targetType": "float64"
+        },
+        {
+            "name": "INDICATED ALTITUDE CALIBRATED SEA LEVEL(ft)",
+            "offset": "0x0590",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "PRESSURE ALTITUDE 1013.2hPa (metres)",
+            "offset": "0x34B0",
+            "size": 8,
+            "targetType": "float64"
+        },
+        {
+            "name": "RADDIO HEIGHT (metres, mult.ed by 65536)",
+            "offset": "0x31E4",
+            "size":  4,
+            "targetType": "int32"
+        },
+        {
+            "name": "GPS POSITION ALT (metres)",
+            "offset": "0x6020",
+            "size": 8,
+            "targetType": "float64"
+        },
+        {
+            "name": "GPS POSITION LAT (deg)",
+            "offset": "0x6010",
+            "size": 8,
+            "targetType": "float64"
+        },
+        {
+            "name": "GPS POSITION LON (deg)",
+            "offset": "0x6018",
+            "size": 8,
+            "targetType": "float64"
+        },
+        {
+            "name": "VERTICAL SPEED (Previous Touchdown, MPS)",
+            "offset": "0x030C",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "VERTICAL SPEED (Realtime, MPS)",
+            "offset": "0x02C8",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "G Force Calibrated (mult.ed by 624, seemingly)",
+            "offset": "0x11BA",
+            "size": 2,
+            "targetType": "int16"
+        },
+        {
+            "name": "G Force Calibrated (multed.ed by 624, seemingly, at previous touchdown)",
+            "offset": "0x11B8",
+            "size": 2,
+            "targetType": "int16"
+        },
+        {
+            "name": "GENERAL ENG FUEL USED SINCE START:1 (in pounds)",
+            "offset": "0x090C",
+            "size": 4,
+            "targetType": "float32"
+        },
+        {
+            "name": "FUEL TOTAL WEIGHT (pounds)",
+            "offset": "0x126C",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "FUEL TOTAL CAPACITY (gallons)",
+            "offset": "0x1240",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "FUEL TOTAL QUANTITY (gallons, you can get a perc with capacity above)",
+            "offset": "0x1264",
+            "size": 4,
+            "targetType": "int32"
+        },
+        {
+            "name": "Aircraft Name",
+            "offset": " 0x3D00",
+            "size": 256,
+            "targetType": "string"
+        },
+        {
+            "name": "Lights",
+            "offset": " 0x0D0C",
+            "size": 2,
+            "targetType": "binaryString"
+        },
+        {
+            "name": "transponder",
+            "offset": "0x0354",
+            "size": 2,
+            "targetType": "bcd"
+        }
+    ]
+}
