@@ -1,5 +1,5 @@
 A HTTP Wrapper for reading FSUIPC simulator variables, written in C.
-Feature: efficient, minimal, taking ~1MB of RAM response time (depending on the request).
+Feature: efficient, minimal, taking ~1MB of RAM and ~70ms response time (depending on the request).
 Usage: See provided DemoRequest.txt and DemoResponse.txt. This one is dedicated for classic 32-Bit simulators, tested on FSX Steam Edition.
 
 For modern simulators (64 Bit), see this repository -> https://github.com/Xuan0876/FSUIPC-HTTP-Wrapper-Server
