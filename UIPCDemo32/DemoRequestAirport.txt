@@ -1,0 +1,59 @@
+Currently Working Demo for Requesting Nearby Airport
+
+POST http://localhost:8000/api/arpt
+
+// Request Body:
+{
+    "requestId": "req-10019238",
+    "apiVersion": "1.0",
+    "dataQueries": [
+        {
+            "name": "Point1",
+            "lat": "29.32472",
+            "lon": "115.01199"
+        },
+        {
+            "name": "Point2",
+            "lat": "29.79403",
+            "lon": "121.53105"
+        },
+        {
+            "name": "Point3",
+            "lat": "-28.7",
+            "lon": "-49.1"
+        }
+    ]
+}
+
+// Response Body:
+{
+    "requestId": "req-10019238",
+    "timestamp": "2025-08-08T08:23:16Z",
+    "status": "success",
+    "dataResults": [
+        {
+            "name": "Point1",
+            "lat": "29.32472",
+            "lon": "115.01199",
+            "airportICAO": "ZSJJ",
+            "airportFullName": "Jiujiang Lushan Airport",
+            "airportDist": "78.296457"
+        },
+        {
+            "name": "Point2",
+            "lat": "29.79403",
+            "lon": "121.53105",
+            "airportICAO": "ZSNB",
+            "airportFullName": "Ningbo Lishe International Airport",
+            "airportDist": "7.588284"
+        },
+        {
+            "name": "Point3",
+            "lat": "-28.7",
+            "lon": "-49.1",
+            "airportICAO": "SBJA",
+            "airportFullName": "Humberto Ghizzo Bortoluzzi Regional Airport",
+            "airportDist": "4.803500"
+        }
+    ]
+}

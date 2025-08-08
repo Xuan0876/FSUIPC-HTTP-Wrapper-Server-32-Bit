@@ -146,6 +146,7 @@
     <Text Include="..\DemoRequestExtended.txt" />
     <Text Include="..\DemoResponse.txt" />
     <Text Include="..\README.txt" />
+    <Text Include="DemoRequestAirport.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
