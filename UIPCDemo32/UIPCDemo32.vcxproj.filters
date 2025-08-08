@@ -30,6 +30,9 @@
     <ClInclude Include="mongoose.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="geohash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IPCuser.c">
@@ -42,6 +45,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mongoose.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geohash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geoHashInterface.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

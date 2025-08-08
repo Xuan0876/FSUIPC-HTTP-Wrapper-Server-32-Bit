@@ -11,6 +11,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "geoHashInterface.c"
 typedef struct uipc_para {
 	DWORD *dwResult;  // Result of the FSUIPC operation
     DWORD *dwOffset;  // Offset in the FSUIPC memory
@@ -204,16 +205,16 @@ char* process_flight_sim_request(const char* request_json, struct uipc_para* par
 
     cJSON* query;
     cJSON_ArrayForEach(query, data_queries) {
-		// Obtain Query Parameters
-        const char* name= cJSON_GetStringValue(cJSON_GetObjectItem(query, "name"));
+        // Obtain Query Parameters
+        const char* name = cJSON_GetStringValue(cJSON_GetObjectItem(query, "name"));
         const char* offset = cJSON_GetStringValue(cJSON_GetObjectItem(query, "offset"));
         int size = cJSON_GetNumberValue(cJSON_GetObjectItem(query, "size"));
         const char* target_type = cJSON_GetStringValue(cJSON_GetObjectItem(query, "targetType"));
         sscanf_s(offset, "%lx", paras->dwOffset);
         *(paras->dwSize) = size;
-		// Validate Offset, Size, and TargetType
+        // Validate Offset, Size, and TargetType
         char* validation_msg = NULL;
-        if (offset < 0 || size < 1 || !target_type || 
+        if (offset < 0 || size < 1 || !target_type ||
             !validate_type_size(target_type, size, &validation_msg)) {
             global_success = false;
             error_code = "INVALID_QUERY";
@@ -221,11 +222,10 @@ char* process_flight_sim_request(const char* request_json, struct uipc_para* par
             break;
         }
 
-		// Read Data from Simulator
+        // Read Data from Simulator
         unsigned char raw_bytes[256];
-
-        bool read_success = FSUIPC_Read(*(paras->dwOffset), *(paras->dwSize), (char*)raw_bytes, paras->dwSize) && 
-                           FSUIPC_Process(paras->dwSize);
+        bool read_success = FSUIPC_Read(*(paras->dwOffset), *(paras->dwSize), (char*)raw_bytes, paras->dwSize) &&
+            FSUIPC_Process(paras->dwSize);
         if (!read_success) {
             global_success = false;
             error_code = "READ_FAILED";
@@ -233,14 +233,14 @@ char* process_flight_sim_request(const char* request_json, struct uipc_para* par
             break;
         }
 
-		// Construct Result Object (Singular)
+        // Construct Result Object (Singular)
         cJSON* result = cJSON_CreateObject();
         cJSON_AddStringToObject(result, "name", name);
         cJSON_AddStringToObject(result, "offset", offset);
         cJSON_AddNumberToObject(result, "size", size);
         cJSON_AddStringToObject(result, "targetType", target_type);
 
-		// Convert Data Based on TargetType
+        // Convert Data Based on TargetType
         convert_data(raw_bytes, size, target_type, result);
 
 
@@ -248,6 +248,114 @@ char* process_flight_sim_request(const char* request_json, struct uipc_para* par
     }
 
 	// 4. Handle Global Failure
+    if (!global_success) {
+        cJSON_DeleteItemFromObject(root_resp, "dataResults"); 
+        cJSON_AddStringToObject(root_resp, "status", "failed");
+        
+        cJSON* error_details = cJSON_CreateObject();
+        cJSON_AddStringToObject(error_details, "code", error_code);
+        cJSON_AddStringToObject(error_details, "message", error_msg);
+        cJSON_AddItemToObject(root_resp, "errorDetails", error_details);
+    }
+
+	// 5. Convert Response to JSON String
+    char* response_json = cJSON_PrintUnformatted(root_resp);
+    cJSON_Delete(root_req);
+    cJSON_Delete(root_resp);
+
+    return response_json;
+}
+char* process_arpt_request(const char* request_json) {
+    // 1. Parse Request 
+    cJSON* root_req = cJSON_Parse(request_json);
+    if (!root_req) {
+ 	    char* error_msg = malloc(1024);
+        if (error_msg == NULL) exit(1);
+        strncpy(error_msg, 
+            "{\"status\":\"failed\",\"errorDetails\":{\"code\":\"INVALID_JSON\",\"message\":\"Failed to parse request\"}}", 
+            1023);      
+        error_msg[1023] = '\0';
+        return error_msg;
+    }
+
+	// Extract Required Fields 
+    const char* request_id = cJSON_GetStringValue(cJSON_GetObjectItem(root_req, "requestId"));
+    const char* api_version = cJSON_GetStringValue(cJSON_GetObjectItem(root_req, "apiVersion"));
+    cJSON* data_queries = cJSON_GetObjectItem(root_req, "dataQueries");
+    if (!request_id || !api_version || !cJSON_IsArray(data_queries)) {
+        cJSON_Delete(root_req);
+		char* error_msg = malloc(1024);
+        strncpy(error_msg, 
+        "{\"status\":\"failed\",\"errorDetails\":{\"code\":\"MISSING_FIELDS\",\"message\":\"Missing requestId/apiVersion/dataQueries\"}}",
+            1023);      
+        error_msg[1023] = '\0';
+        return error_msg;
+    }
+
+	// 2. Initialize Response Object
+    cJSON* root_resp = cJSON_CreateObject();
+    cJSON_AddStringToObject(root_resp, "requestId", request_id);
+    cJSON_AddStringToObject(root_resp, "timestamp", get_iso8601_timestamp());
+    cJSON_AddStringToObject(root_resp, "status", "success");
+
+	// 3. Handle Each Query
+    cJSON* data_results = cJSON_CreateArray();
+    cJSON_AddItemToObject(root_resp, "dataResults", data_results);
+
+    bool global_success = true;
+    char* error_code = "UNKNOWN_ERROR";
+    char* error_msg = "Unknown error occurred";
+
+    cJSON* query;
+        cJSON_ArrayForEach(query, data_queries) {
+		// Obtain Query Parameters
+        const char* name = cJSON_GetStringValue(cJSON_GetObjectItem(query, "name"));
+        const char* lat = cJSON_GetStringValue(cJSON_GetObjectItem(query, "lat"));
+        const char* lon = cJSON_GetStringValue(cJSON_GetObjectItem(query, "lon"));
+		// Validate lat and lon
+        if (!lat || !lon) {
+            global_success = false;
+            error_code = "INVALID_QUERY";
+            error_msg = "Missing lat/lon parameters";
+            break;
+		}
+        // Validate lat and lon range
+		double latitude, longitude;
+		latitude = atof(lat);
+        longitude = atof(lon);
+        if (!(latitude <= 91 && latitude >= -91 && longitude >= -180 && longitude <= 180)) {
+            global_success = false;
+            error_code = "INVALID_QUERY";
+            error_msg = "lat/lon out of range";
+            break;
+        }
+
+		// Calculate nearby airport
+		char* airport_ICAO = malloc(64);
+		char* airport_name = malloc(256);
+		memset(airport_ICAO, 0, 64);
+		memset(airport_name, 0, 256);
+        double dist = DBL_MAX;
+		query_location(latitude, longitude, airport_ICAO, airport_name, &dist);
+		assert(airport_ICAO != NULL && airport_name != NULL);
+		assert(dist != DBL_MAX);
+        char dist_str[10];
+        sprintf(dist_str, "%lf", dist);
+		// Construct Result Object (Singular)
+        cJSON* result = cJSON_CreateObject();
+        cJSON_AddStringToObject(result, "name", name);
+        cJSON_AddStringToObject(result, "lat", lat);
+        cJSON_AddStringToObject(result, "lon", lon);
+        cJSON_AddStringToObject(result, "airportICAO", airport_ICAO);
+        cJSON_AddStringToObject(result, "airportFullName", airport_name);
+        cJSON_AddStringToObject(result, "airportDist", dist_str);
+
+		free(airport_ICAO);
+		free(airport_name);
+
+        cJSON_AddItemToArray(data_results, result);
+    }
+    // 4. Handle Global Failure
     if (!global_success) {
         cJSON_DeleteItemFromObject(root_resp, "dataResults"); 
         cJSON_AddStringToObject(root_resp, "status", "failed");
@@ -283,6 +391,31 @@ static void fn(struct mg_connection* c, int ev, void* ev_data) {
 
 			// Handle the request and generate response JSON
             char* responseJSON = process_flight_sim_request(hm->body.buf, uipc_paras);
+
+            if (responseJSON != NULL) {
+				// Return 200 OK with the complete JSON response
+                mg_http_reply(c, 200, "Content-Type: application/json\r\n",
+                    "%s\n", responseJSON);
+                free(responseJSON); 
+            }
+            else {
+				// Handle failure to generate response
+                mg_http_reply(c, 500, "Content-Type: application/json\r\n",
+                    "{\"error\": \"Failed to process request\"}");
+            }
+        }
+        else if (mg_match(hm->uri, mg_str("/api/arpt"),NULL)) {
+             if (hm->body.len == 0) {
+                mg_http_reply(c, 400, "Content-Type: application/json\r\n",
+                    "{\"error\": \"Empty request body\"}");
+                return;
+            }
+
+			// For debugging
+            printf("Request Body: %.*s\n", (int)hm->body.len, hm->body.buf);
+
+			// Handle the request and generate response JSON
+            char* responseJSON = process_arpt_request(hm->body.buf);
 
             if (responseJSON != NULL) {
 				// Return 200 OK with the complete JSON response
@@ -333,6 +466,7 @@ int main(int argc, char* argv[])
 		uipc_paras.dwOffset= &dwOffset;
 		uipc_paras.dwSize = &dwSize;
         printf("UIPC: Link established to FSUIPC\n\n");
+        initialise_hash();
 		struct mg_mgr mgr;  // Declare event manager
 		mg_mgr_init(&mgr);  // Initialise event manager
 		mg_http_listen(&mgr, "http://0.0.0.0:8000", fn, &uipc_paras);  // Setup listener
@@ -345,6 +479,7 @@ int main(int argc, char* argv[])
         printf("UIPC: Failed to open link to FSUIPC\n%s\n", pszErrors[dwResult]);
     }
 
+    finalise_hash();
     FSUIPC_Close();
     return 0;
 }

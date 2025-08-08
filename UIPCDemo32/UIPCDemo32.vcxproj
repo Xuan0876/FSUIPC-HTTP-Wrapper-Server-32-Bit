@@ -125,12 +125,15 @@
   <ItemGroup>
     <ClInclude Include="cjson.h" />
     <ClInclude Include="FSUIPC_User.h" />
+    <ClInclude Include="geohash.h" />
     <ClInclude Include="IPCuser.h" />
     <ClInclude Include="mongoose.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cjson.c" />
+    <ClCompile Include="geoHashInterface.c" />
+    <ClCompile Include="geohash.c" />
     <ClCompile Include="IPCuser.c" />
     <ClCompile Include="mongoose.c" />
     <ClCompile Include="UIPCDemo32.c" />
