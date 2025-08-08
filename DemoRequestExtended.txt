@@ -1,6 +1,6 @@
 Currently Working Demo Request (Extended)
 
-POST URL: http://0.0.0.0:8000/api/uipc
+POST URL: http://localhost:8000/api/uipc
 {
     "requestId": "req-10019238",
     "apiVersion": "1.0",
