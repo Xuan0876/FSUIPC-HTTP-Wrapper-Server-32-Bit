@@ -1,11 +1,9 @@
-/*  UIPChello.c	Displays UIPC link data in a message box */
-
+/* Entry file*/
 #include "mongoose.h"
 #include <windows.h>
 #include <stdio.h>
 #include "FSUIPC_User.h"
 #include "string.h"
-//#include "FSUIPC_User64.h"
 #include "cjson.h"
 #include <stdlib.h>
 #include <time.h>
@@ -35,7 +33,9 @@ char* pszErrors[] = {
     "Maybe running on WideClient, but FS not running on Server, or wrong FSUIPC",
     "Read or Write request cannot be added, memory for Process is full",
 };
-
+/*
+* Convert raw data to a binary string representation, e.g. "11001010"
+*/
 char* printBits(const unsigned char* data, int size) {
     int lo = 0;
     int hi = size * 8;
@@ -50,7 +50,10 @@ char* printBits(const unsigned char* data, int size) {
     bits[hi] = '\0';
 	return bits;
 }
-//Credit: https://nachtimwald.com/2017/09/24/hex-encode-and-decode-in-c/
+/*
+* Credit: https://nachtimwald.com/2017/09/24/hex-encode-and-decode-in-c/
+* Simply converts binary data to a hex string.
+*/
 char *bin2hex(const unsigned char *bin, size_t len)
 {
 	char   *out;
@@ -76,6 +79,9 @@ char* get_iso8601_timestamp() {
     strftime(timestamp, sizeof(timestamp), "%Y-%m-%dT%H:%M:%SZ", utc);
     return timestamp;
 }
+/*
+* convert raw data to targetType and add to result_obj
+*/
 void convert_data(const unsigned char* raw_data, size_t size, const char* targetType, cJSON* result_obj) {
     if (strcmp(targetType, "int8") == 0) {
         int8_t val;
@@ -162,6 +168,9 @@ bool validate_type_size(const char* targetType, int size, char** error_msg) {
     }
     return true;
 }
+/*
+* Process request to http://localhost:8000/api/uipc, read data from flight simulator via FSUIPC
+*/
 char* process_flight_sim_request(const char* request_json, struct uipc_para* paras) {
     // 1. Parse Request 
     cJSON* root_req = cJSON_Parse(request_json);
@@ -265,6 +274,9 @@ char* process_flight_sim_request(const char* request_json, struct uipc_para* par
 
     return response_json;
 }
+/*
+* Process request to http://localhost:8000/api/arpt, find nearest airport via geoHashInterface.c
+*/
 char* process_arpt_request(const char* request_json) {
     // 1. Parse Request 
     cJSON* root_req = cJSON_Parse(request_json);
@@ -373,6 +385,9 @@ char* process_arpt_request(const char* request_json) {
 
     return response_json;
 }
+/*
+* Event handler function for Mongoose HTTP interface
+*/
 static void fn(struct mg_connection* c, int ev, void* ev_data) {
 	uipc_paras_t* uipc_paras = (uipc_paras_t*)c->fn_data;  //Required for FSUIPC operations
 
@@ -469,7 +484,7 @@ int main(int argc, char* argv[])
         initialise_hash();
 		struct mg_mgr mgr;  // Declare event manager
 		mg_mgr_init(&mgr);  // Initialise event manager
-		mg_http_listen(&mgr, "http://0.0.0.0:8000", fn, &uipc_paras);  // Setup listener
+		mg_http_listen(&mgr, "http://localhost:8000", fn, &uipc_paras);  // Setup listener
 		for (;;) {          // Run an infinite event loop
 			mg_mgr_poll(&mgr, 1000);
 		}
