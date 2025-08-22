@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "geoHashInterface.c"
+int airport_lookup_enabled = 1; // Global variable to control airport lookup
 typedef struct uipc_para {
 	DWORD *dwResult;  // Result of the FSUIPC operation
     DWORD *dwOffset;  // Offset in the FSUIPC memory
@@ -419,7 +420,7 @@ static void fn(struct mg_connection* c, int ev, void* ev_data) {
                     "{\"error\": \"Failed to process request\"}");
             }
         }
-        else if (mg_match(hm->uri, mg_str("/api/arpt"),NULL)) {
+        else if (airport_lookup_enabled&&mg_match(hm->uri, mg_str("/api/arpt"),NULL)) {
              if (hm->body.len == 0) {
                 mg_http_reply(c, 400, "Content-Type: application/json\r\n",
                     "{\"error\": \"Empty request body\"}");
@@ -481,7 +482,12 @@ int main(int argc, char* argv[])
 		uipc_paras.dwOffset= &dwOffset;
 		uipc_paras.dwSize = &dwSize;
         printf("UIPC: Link established to FSUIPC\n\n");
-        initialise_hash();
+        if(initialise_hash() == 1)
+        {
+			airport_lookup_enabled = 0;// Disable airport lookup if hash initialisation fails
+			printf("UIPC: Failed to initialise airport hash table, endpoints for airport lookup disabled.\n");
+			printf("UIPC: To enable, place simplifiedAirports.csv in the same directory and restart the wrapper\n");
+        }
 		struct mg_mgr mgr;  // Declare event manager
 		mg_mgr_init(&mgr);  // Initialise event manager
 		mg_http_listen(&mgr, "http://localhost:8000", fn, &uipc_paras);  // Setup listener
