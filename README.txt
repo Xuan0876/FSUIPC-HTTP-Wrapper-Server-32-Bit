@@ -1,9 +1,10 @@
 A HTTP Wrapper for reading FSUIPC simulator variables, written in C.
-Feature: efficient, minimal, taking ~1MB of RAM and ~70ms response time (depending on the request).
-Usage: See provided DemoRequest.txt and DemoResponse.txt, initially for FS2020.
+Feature: efficient, minimal, taking ~1MB of RAM and <10 ms response time (depending on the request and simulator, for FSX the response time could be ~70ms).
+Usage: See provided DemoRequest.txt and DemoResponse.txt, made for MSFS2020.
 
-This one is dedicated for classic 32-Bit simulators. There may be fewer offsets available for reading.
-For modern simulators (64 Bit), see this repository -> https://github.com/Xuan0876/FSUIPC-HTTP-Wrapper-Server
+This one is not limited to classic 32-Bit simulators. We have tested it on FSX, MSFS2020/2024, and X-Plane with XUIPC. 
+However, for different simulators, the offsets may be different.
+
 
 Credit:
 Moongoose Web Server - HTTP handling 
